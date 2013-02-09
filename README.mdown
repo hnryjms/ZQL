@@ -81,3 +81,11 @@ After querying `INSERT INTO`, you can get the value of the auto_increment field 
 $newID = $zql->id();
 $newID = $zql->id($query);
 ```
+
+See Also
+--------
+
+Make sure to check out these files in this project for more information.
+
+* EXAMPLES.mdown - Examples on how you can use ZQL
+* ZQL.php - The file you need to integrate ZQL
