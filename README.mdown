@@ -1,4 +1,4 @@
-PHP > ZQL
+ZQL: A Simple PHP MySQL Class
 =========
 
 A simple class for accessing MySQL in PHP with security built-in. This class keeps track of everything you need and even closes your connection when you're done, unlike almost every developer.
