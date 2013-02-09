@@ -97,31 +97,20 @@ class zql {
 		
 		return $query->num_rows;
 	}
+	/**
+	 * Get the INSERT_ID of a newly inserted row if available
+	 *
+	 * @return integer The ID of the new row in auto_increment
+	 *
+	 * @example $zql->id();
+	 * @example $zql->id($query);
+	 *
+	 * @author z43 Studio
+	 **/
 	function id($query='') {
 		if (empty($query)) $query = $this->last_query;
 		
 		return $this->conn->insert_id;
 	}
 }
-
-// Create a new ZQL class and connect to myzql:password@localhost/myzql (database is same as username, localhost server).
-$zql = new zql("myzql", "password");
-
-// Check if MySQL is connected to server with mysql_ping($connection);
-$zql->isConnected();
-
-// Make a safe sprintf(); and escape string query - $email and $password should NOT be escaped (can cause an error).
-$zql->query("SELECT * FROM `users` WHERE `email` = '%s' AND `password` = '%s' LIMIT 1;", $email, hash('sha-256', $password));
-
-// Check if any users were found in the most recent query from $zql.
-$count = $zql->rows(); echo $count;
-
-// If a row was returned, get the name column of the one user found (since LIMIT 1 limited results to just one).
-if ($id > 0) echo $zql->result("name");
-
-// Safely insert an unescaped string into the table
-$zql->query("INSERT INTO `table` (`id`, `value`) VALUES (NULL, '%s')", "unescaped string");
-
-// Get the auto_increment ID for the inserted table
-$zql->id(); 
 ?>

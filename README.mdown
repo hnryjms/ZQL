@@ -10,9 +10,11 @@ How to Use
 
 Creating your connection is easier than using just MySQLi. All you need is the username and password if you're connecting to localhost with the same database as username.
 
-	$zql = new zql("z43studio_home", "myawesomepassword");
-	$zql = new zql("z43studio_home", "myawesomepassword", "mydatabase");
-	$zql = new zql("z43studio_home", "myawesomepassword", "mydatabase", "67.43.23.193");
+```php
+$zql = new zql("z43studio_home", "myawesomepassword");
+$zql = new zql("z43studio_home", "myawesomepassword", "mydatabase");
+$zql = new zql("z43studio_home", "myawesomepassword", "mydatabase", "67.43.23.193");
+```
 
 If you are using the first line, you'll connect to `localhost` with the `z43studio_home : myawesomepassword` and connect to a `z43studio_home` database.  
 The second line will connect to localhost with that username and password, but connect to `mydatabase` instead.  
@@ -22,42 +24,52 @@ The third will connect to z43's server. But don't try it because our server won'
 
 If you are unsure if your connection is active, you can call `$zql->isConnected();` to make the check.
 
-	if (!$zql->isConnected()) {
-		echo "There was an error connecting to the server";
-		exit();
-	}
+```php
+if (!$zql->isConnected()) {
+	echo "There was an error connecting to the server";
+	exit();
+}
+```
 
 #### Making a new query
 
 After you've connected, you can use ZQL to make simple and safe queries to your database. The most recent query is automatically used for results if you don't save the variable.
 
-	$zql->query("SELECT * FROM `users` WHERE `username` = '%s' AND `password` = '%s' LIMIT 1;", $username, hash('sha-256', $password));
-	if ($zql->rows() > 0) {
-		echo "Account was found with username and hashed password";
-	}
+```php
+$zql->query("SELECT * FROM `users` WHERE `username` = '%s' AND `password` = '%s' LIMIT 1;", $username, hash('sha-256', $password));
+if ($zql->rows() > 0) {
+	echo "Account was found with username and hashed password";
+}
+```
 
 If you need to make multiple queries and use both of their results, you can save the queries
 
-	$posts = $zql->query("SELECT * FROM `posts` LIMIT 15;");
-	for ($i = 0; $i < $zql->rows($users); $i++) {
-		$comments = $zql->query("SELECT * FROM `comments` WHERE `post-id` = '%d';", $zql->result($i, "id", $posts));
-	}
+```php
+$posts = $zql->query("SELECT * FROM `posts` LIMIT 15;");
+for ($i = 0; $i < $zql->rows($users); $i++) {
+	$comments = $zql->query("SELECT * FROM `comments` WHERE `post-id` = '%d';", $zql->result($i, "id", $posts));
+}
+```
 
 #### Reading number of rows in result of query
 
 You can see the number of rows your query returned by using `$zql->rows();` to give you an integer value or 0.
 
-	if ($zql->rows() > 0) {
-		echo "There was " . $zql->rows() . " result(s) in query.";
-	} else echo "No results";
+```php
+if ($zql->rows() > 0) {
+	echo "There was " . $zql->rows() . " result(s) in query.";
+} else echo "No results";
+```
 
 #### Getting results of a query
 
 You can read the data of your queries by using `$zql->result()` for a specific row and column. You'll either get the entire row or the column for the row requested.
 
-	$row4 = $zql->result('', 4); // array ('name' => 'namevalue', 0 => 'namevalue', 'email' => 'emailvalue', 1 => 'emailvalue' ...);
-	$firstRowName = $zql->result('name');
-	$row8NameQuery2 = $zql->result('name', 4, $query2);
+```php
+$row4 = $zql->result('', 4); // array ('name' => 'namevalue', 0 => 'namevalue', 'email' => 'emailvalue', 1 => 'emailvalue' ...);
+$firstRowName = $zql->result('name');
+$row8NameQuery2 = $zql->result('name', 4, $query2);
+```
 
 If you are using multiple queries (rather than using the most recent query), you can supply the `$zql->query()` response as the third variable.
 
@@ -65,5 +77,7 @@ If you are using multiple queries (rather than using the most recent query), you
 
 After querying `INSERT INTO`, you can get the value of the auto_increment field (if available) for the inserted row with:
 
-	$newID = $zql->id();
-	$newID = $zql->id($query);
+```php
+$newID = $zql->id();
+$newID = $zql->id($query);
+```
