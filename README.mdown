@@ -16,13 +16,13 @@ $zql = new zql("z43studio_home", "myawesomepassword", "mydatabase");
 $zql = new zql("z43studio_home", "myawesomepassword", "mydatabase", "67.43.23.193");
 ```
 
-If you are using the first line, you'll connect to `localhost` with the `z43studio_home : myawesomepassword` and connect to a `z43studio_home` database.  
-The second line will connect to localhost with that username and password, but connect to `mydatabase` instead.  
+If you are using the first line, you'll connect to `localhost` with the username `z43studio_home`, password `myawesomepassword` and connect to the database with the same name as the username (`z43studio_home`).  
+The second line will connect to `localhost` with that username and password, but connect to `mydatabase` instead.  
 The third will connect to z43's server. But don't try it because our server won't accept the connection.
 
 #### Making sure you're connected
 
-If you are unsure if your connection is active, you can call `$zql->isConnected();` to make the check.
+If you are unsure if your connection is active, you can call `$zql->isConnected();` to make the check, however, creating the class would throw any error that MySQLi encounters.
 
 ```php
 if (!$zql->isConnected()) {
@@ -33,13 +33,10 @@ if (!$zql->isConnected()) {
 
 #### Making a new query
 
-After you've connected, you can use ZQL to make simple and safe queries to your database. The most recent query is automatically used for results if you don't save the variable.
+After you've connected, you can use ZQL to make simple and safe queries to your database. The most recent query is automatically used for results if you don't save the variable. Use `query()` just like `mysqli_query()`, `sprintf()` and `mysqli_real_escape_string()` all together. All arguments after the first will be escaped automatically.
 
 ```php
 $zql->query("SELECT * FROM `users` WHERE `username` = '%s' AND `password` = '%s' LIMIT 1;", $username, hash('sha-256', $password));
-if ($zql->rows() > 0) {
-	echo "Account was found with username and hashed password";
-}
 ```
 
 If you need to make multiple queries and use both of their results, you can save the queries
@@ -47,40 +44,41 @@ If you need to make multiple queries and use both of their results, you can save
 ```php
 $posts = $zql->query("SELECT * FROM `posts` LIMIT 15;");
 for ($i = 0; $i < $zql->rows($users); $i++) {
-	$comments = $zql->query("SELECT * FROM `comments` WHERE `post-id` = '%d';", $zql->result($i, "id", $posts));
+	$comments = $zql->query("SELECT * FROM `comments` WHERE `post-id` = 5;");
 }
 ```
 
 #### Reading number of rows in result of query
 
-You can see the number of rows your query returned by using `$zql->rows();` to give you an integer value or 0.
+You can find the number of rows your query returned by using `$zql->rows();` to give you an integer value or 0.
 
 ```php
 if ($zql->rows() > 0) {
 	echo "There was " . $zql->rows() . " result(s) in query.";
-} else echo "No results";
+} else echo "No results in query";
 ```
 
 #### Getting results of a query
 
-You can read the data of your queries by using `$zql->result()` for a specific row and column. You'll either get the entire row or the column for the row requested.
+You can read the data of your queries by using `$zql->result()` for a specific row and column. You can get one of the first row's columns with one argument, any other rows value with the second argument, and specify the query with the third. As an added bonus, if you leave the first argument empty, you'll get an array of all the columns for that row.
 
 ```php
-$row4 = $zql->result('', 4); // array ('name' => 'namevalue', 0 => 'namevalue', 'email' => 'emailvalue', 1 => 'emailvalue' ...);
-$firstRowName = $zql->result('name');
+$row0name = $zql->result('name');
 $row8NameQuery2 = $zql->result('name', 4, $query2);
 ```
 
-If you are using multiple queries (rather than using the most recent query), you can supply the `$zql->query()` response as the third variable.
+If you are using multiple queries (rather than using the most recent query), you should supply the `$zql->query()` response as the third variable. If you do not, the most recent query will be used.
 
 #### Getting the ID of an inserted row
 
 After querying `INSERT INTO`, you can get the value of the auto_increment field (if available) for the inserted row with:
 
 ```php
+$zql->query("INSERT INTO `table` (`id`, `string`) VALUES (NULL, 'mystring');");
 $newID = $zql->id();
-$newID = $zql->id($query);
 ```
+
+If you are using multiple queries, you should add the query that inserted the row as the only argument. Otherwise the most recent query will be used again.
 
 See Also
 --------
@@ -89,3 +87,5 @@ Make sure to check out these files in this project for more information.
 
 * EXAMPLES.mdown - Examples on how you can use ZQL
 * ZQL.php - The file you need to integrate ZQL
+* [z43studio.com](http://z43studio.com/) - z43 Studio's website
+* [Contact z43](https://z43studio.com/talk.php) - Tell us about something

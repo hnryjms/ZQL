@@ -105,7 +105,7 @@ class zql {
 	 * @example $zql->id();
 	 * @example $zql->id($query);
 	 *
-	 * @author z43 Studio
+	 * @author z43 Studio Inc.
 	 **/
 	function id($query='') {
 		if (empty($query)) $query = $this->last_query;
