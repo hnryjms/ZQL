@@ -20,9 +20,11 @@ If you are using the first line, you'll connect to `localhost` with the username
 The second line will connect to `localhost` with that username and password, but connect to `mydatabase` instead.  
 The third will connect to z43's server. But don't try it because our server won't accept the connection.
 
+If the connection was unsuccessful, the error will be returned rather than the new class, rather than crashing your script. You should handle this error gracefully.
+
 #### Making sure you're connected
 
-If you are unsure if your connection is active, you can call `$zql->isConnected();` to make the check, however, creating the class would throw any error that MySQLi encounters.
+If you are unsure if your connection is active, you can call `$zql->isConnected();` to make the check.
 
 ```php
 if (!$zql->isConnected()) {
@@ -33,13 +35,13 @@ if (!$zql->isConnected()) {
 
 #### Making a new query
 
-After you've connected, you can use ZQL to make simple and safe queries to your database. The most recent query is automatically used for results if you don't save the variable. Use `query()` just like `mysqli_query()`, `sprintf()` and `mysqli_real_escape_string()` all together. All arguments after the first will be escaped automatically.
+After you've connected, you can use ZQL to make simple and safe queries to your database. The most recent query is automatically used for results if you don't save the variable. Use `$zql->query()` just like `mysqli_query()`, `sprintf()` and `mysqli_real_escape_string()` all together. All arguments after the first will be escaped automatically.
 
 ```php
 $zql->query("SELECT * FROM `users` WHERE `username` = '%s' AND `password` = '%s' LIMIT 1;", $username, hash('sha-256', $password));
 ```
 
-If you need to make multiple queries and use both of their results, you can save the queries
+If you need to make multiple queries and use both of their results, you can save the queries for later. The response is `mysqli_result` for `SELECT`, `SHOW`, `DESCRIBE` or `EXPLAIN` queries and `bool` for all others (whether query was successful or not).
 
 ```php
 $posts = $zql->query("SELECT * FROM `posts` LIMIT 15;");
@@ -60,14 +62,21 @@ if ($zql->rows() > 0) {
 
 #### Getting results of a query
 
-You can read the data of your queries by using `$zql->result()` for a specific row and column. You can get one of the first row's columns with one argument, any other rows value with the second argument, and specify the query with the third. As an added bonus, if you leave the first argument empty, you'll get an array of all the columns for that row.
+You can read the data of your queries by using `$zql->result()` for a specific row and column and `$zql->results()` for an entire row. With `$zql->result()`, you can get one of the first row's columns with one argument, any other rows value with the second argument, and specify the query with the third.
+
+For an array of an entire row, you can use `$zql->results()`. Argument-less, you'll receive an array for the first row's data. Use the first argument to specify the row, and the second for the query.
 
 ```php
 $row0name = $zql->result('name');
-$row8NameQuery2 = $zql->result('name', 4, $query2);
+$row4name = $zql->result('name', 4);
+$row0nameQuery2 = $zql->result('name', 0, $query2);
+
+$row0 = $zql->results();
+$row4 = $zql->results(4);
+$row0query2 = $zql->results(0, $query2);
 ```
 
-If you are using multiple queries (rather than using the most recent query), you should supply the `$zql->query()` response as the third variable. If you do not, the most recent query will be used.
+If you are using multiple queries (rather than using the most recent query), you should supply the `$zql->query()` response (or `mysqli_result`) as the third variable. If you do not, the most recent query will be used.
 
 #### Getting the ID of an inserted row
 
@@ -78,7 +87,7 @@ $zql->query("INSERT INTO `table` (`id`, `string`) VALUES (NULL, 'mystring');");
 $newID = $zql->id();
 ```
 
-If you are using multiple queries, you should add the query that inserted the row as the only argument. Otherwise the most recent query will be used again.
+You must get the ID of the row before another new row is inserted, as MySQLi is not set up to use this function query-by-query.
 
 See Also
 --------
