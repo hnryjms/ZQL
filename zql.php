@@ -24,8 +24,8 @@ class zql {
 		try {
 			$this->conn = new mysqli($host, $user, $password, $this->utils['database']);
 			if ($this->conn) {
-				if (!$this->conn->connect_errno) throw new Exception(mysqli_error());
-			} else throw new Exception(mysqli_error());
+				if (!$this->conn->connect_errno) throw new Exception($this->conn->error);
+			} else throw new Exception($this->conn->error);
 		} catch (Exception $e) {
 			return $e;
 		}
