@@ -50,6 +50,13 @@ for ($i = 0; $i < $zql->rows($users); $i++) {
 }
 ```
 
+For making queries with standard `sprintf()` functions, you can use the `$zql->unsafeQuery()` call just like `sprintf()` and `mysqli_query()` together. Arguments put into the first string will **not** be escaped. Unsafe Query can also be paired with `$zql->escape()` to get safe values.
+
+```php
+$filter = sprintf("`type` = '%s'", $zql->escape($_REQUEST['devices']));
+$zql->unsafeQuery("SELECT * FROM `devices` WHERE %s;", $filter);
+```
+
 #### Reading number of rows in result of query
 
 You can find the number of rows your query returned by using `$zql->rows();` to give you an integer value or 0.
@@ -95,6 +102,6 @@ See Also
 Make sure to check out these files in this project for more information.
 
 * EXAMPLES.mdown - Examples on how you can use ZQL
-* ZQL.php - The file you need to integrate ZQL
-* [z43studio.com](http://z43studio.com/) - z43 Studio's website
-* [Contact z43](https://z43studio.com/talk.php) - Tell us about something
+* zql.php - The file you need to integrate ZQL (including documentation)  
+* [z43 Studio](http://z43studio.com/) - A prime example of ZQL in action—everything I've made.
+* [Contact Me](https://z43studio.com/talk.php) - Drop me a line, ask a question or offer me a job.

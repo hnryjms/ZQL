@@ -58,10 +58,43 @@ class zql {
 		 */
 	function query() {
 		$args = func_get_args();
-		for ($i=1; $i < count($args); $i++) $args[$i] = $this->conn->real_escape_string($args[$i]);
+		for ($i=1; $i < count($args); $i++) $args[$i] = $this->escape($args[$i]);
 		$spr = call_user_func_array('sprintf', $args);
 		$this->last_query = $this->conn->query($spr);
 		return $this->last_query;
+	}
+	/**
+	 * Run an unsafe query with sprintf(); and unescaped string arguments
+	 *
+	 * @param string The base for the sprintf command to be ran from
+	 * @param mixed The data for the sprintf command (if any)
+	 *
+	 * @return mysqli_result or bool and saved in $this->last_query and used in other arguments if not manually added
+	 *
+	 * @example $zql->unsafeQuery("SELECT * FROM `table` WHERE %s;", $filters);
+	 *
+	 * @author z43 Studio Inc.
+	 **/
+	function unsafeQuery() {
+		$args = func_get_args();
+		for ($i=1; $i < count($args); $i++) $args[$i] = $args[$i];
+		$spr = call_user_func_array('sprintf', $args);
+		$this->last_query = $this->conn->query($spr);
+		return $this->last_query;
+	}
+	/**
+	 * Escape a string with the current server settings and connection
+	 *
+	 * @param string The unescaped string to be escaped
+	 *
+	 * @return string An escaped version of an unescaped string
+	 *
+	 * @example $zql->escape($_REQUEST['email']);
+	 *
+	 * @author z43 Studio Inc.
+	 **/
+	function escape($string) {
+		return $this->conn->real_escape_string($string);
 	}
 	/**
 		 * Get the result of a query or the result of a query
