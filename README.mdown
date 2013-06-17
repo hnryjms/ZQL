@@ -1,7 +1,7 @@
-ZQL: A Simple PHP MySQL Class
+ZQL - A Simple PHP MySQL Class
 =========
 
-A simple class for accessing MySQL in PHP with security built-in. This class keeps track of everything you need and even closes your connection when you're done, unlike almost every developer.
+A simple class for accessing MySQL in PHP with security built-in. This class keeps track of everything you need and even closes your connection when you're done. Queries are easy, painless and automatically escaped.
 
 How to Use
 ----------
@@ -20,8 +20,6 @@ If you are using the first line, you'll connect to `localhost` with the username
 The second line will connect to `localhost` with that username and password, but connect to `mydatabase` instead.  
 The third will connect to z43's server. But don't try it because our server won't accept the connection.
 
-If the connection was unsuccessful, the error will be returned rather than the new class, rather than crashing your script. You should handle this error gracefully.
-
 #### Making sure you're connected
 
 If you are unsure if your connection is active, you can call `$zql->isConnected();` to make the check.
@@ -35,13 +33,13 @@ if (!$zql->isConnected()) {
 
 #### Making a new query
 
-After you've connected, you can use ZQL to make simple and safe queries to your database. The most recent query is automatically used for results if you don't save the variable. Use `$zql->query()` just like `mysqli_query()`, `sprintf()` and `mysqli_real_escape_string()` all together. All arguments after the first will be escaped automatically.
+After you've connected, you can use ZQL to make simple and safe queries to your database. The most recent query is automatically used for getting results if you don't save the `mysqli_result` returned. Use `$zql->query()` just like `mysqli_query()`, `sprintf()` and `mysqli_real_escape_string()` all together. All the arguments after the first will be escaped, so you don't need to worry.
 
 ```php
 $zql->query("SELECT * FROM `users` WHERE `username` = '%s' AND `password` = '%s' LIMIT 1;", $username, hash('sha-256', $password));
 ```
 
-If you need to make multiple queries and use both of their results, you can save the queries for later. The response is `mysqli_result` for `SELECT`, `SHOW`, `DESCRIBE` or `EXPLAIN` queries and `bool` for all others (whether query was successful or not).
+This method returns the same result as `mysqli_query` would, therefore, the response is `mysqli_result` for `SELECT`, `SHOW`, `DESCRIBE` or `EXPLAIN` queries and `bool` for all others (whether query was successful or not).
 
 ```php
 $posts = $zql->query("SELECT * FROM `posts` LIMIT 15;");
@@ -50,6 +48,8 @@ for ($i = 0; $i < $zql->rows($users); $i++) {
 }
 ```
 
+##### Making an unsafe query
+
 For making queries with standard `sprintf()` functions, you can use the `$zql->unsafeQuery()` call just like `sprintf()` and `mysqli_query()` together. Arguments put into the first string will **not** be escaped. Unsafe Query can also be paired with `$zql->escape()` to get safe values.
 
 ```php
@@ -57,30 +57,37 @@ $filter = sprintf("`type` = '%s'", $zql->escape($_REQUEST['devices']));
 $zql->unsafeQuery("SELECT * FROM `devices` WHERE %s;", $filter);
 ```
 
-#### Reading number of rows in result of query
+#### Number of rows in a result
 
-You can find the number of rows your query returned by using `$zql->rows();` to give you an integer value or 0.
+You can find the number of rows your query returned by using `$zql->rows();` to give you an integer value or 0. If you need the rows of a query that isn't saved in `$zql->last_query`, just add it in as the first argument.
 
 ```php
 if ($zql->rows() > 0) {
-	echo "There was " . $zql->rows() . " result(s) in query.";
+	echo "There was " . $zql->rows($query) . " result(s) in query.";
 } else echo "No results in query";
 ```
 
 #### Getting results of a query
 
-You can read the data of your queries by using `$zql->result()` for a specific row and column and `$zql->results()` for an entire row. With `$zql->result()`, you can get one of the first row's columns with one argument, any other rows value with the second argument, and specify the query with the third.
-
-For an array of an entire row, you can use `$zql->results()`. Argument-less, you'll receive an array for the first row's data. Use the first argument to specify the row, and the second for the query.
+You can read the data of your queries by using `$zql->cell()` for a specific column in a specific row. With `$zql->cell()`, you can get one of the first row's columns with the first argument, any other rows value with the second argument, and specify the query source with the third.
 
 ```php
-$row0name = $zql->result('name');
-$row4name = $zql->result('name', 4);
-$row0nameQuery2 = $zql->result('name', 0, $query2);
+$row0name = $zql->cell('name');
+$row4name = $zql->cell('name', 4);
+$row0nameQuery2 = $zql->cell('name', 0, $query2);
+```
 
-$row0 = $zql->results();
-$row4 = $zql->results(4);
-$row0query2 = $zql->results(0, $query2);
+For an array of an entire row, you can use `$zql->row()`. Argument-less, you'll receive an array for the first row's data. Use the first argument to specify the row, and the second for the query just like before.
+
+```php
+$row0 = $zql->row();
+$row4 = $zql->row(4);
+```
+
+If you want an array of every single row, you can use `$zql->results()`. Without supplying anything, you'll get an array full of subarrays containing each row's data. You can set the query as the first variable like in the other functions.
+
+```php
+$results = $zql->results();
 ```
 
 If you are using multiple queries (rather than using the most recent query), you should supply the `$zql->query()` response (or `mysqli_result`) as the third variable. If you do not, the most recent query will be used.
@@ -99,9 +106,8 @@ You must get the ID of the row before another new row is inserted, as MySQLi is 
 See Also
 --------
 
-Make sure to check out these files in this project for more information.
+Make sure to check out this stuff out, because it's where all the cool cats go.
 
-* EXAMPLES.mdown - Examples on how you can use ZQL
 * zql.php - The file you need to integrate ZQL (including documentation)  
 * [z43 Studio](http://z43studio.com/) - A prime example of ZQL in action—everything I've made.
-* [Contact Me](https://z43studio.com/talk.php) - Drop me a line, ask a question or offer me a job.
+* [Send Me Something](https://z43studio.com/contact) - Drop me a line, ask a question or offer me a job.
